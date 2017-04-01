@@ -14,7 +14,7 @@
 
 
 Τι πρέπει να συμβεί όταν δημιουργείται ένας κόμβος;
-- Φτιάχνεται το αντικείμενο Nodo.
+- Φτιάχνεται το αντικείμενο Vértice.
 - Χρειαζόμαστε τους γονείς, το ραθόν και το valor
 - Μπαίνει στη λίστα των παιδιών κάθε πατέρα του.
 - Μπαίνει στη λίστα με τους κόμβους όλου του δέντρου
@@ -22,23 +22,7 @@
 
 =end
 
-class Dot
-
-	def initialize(pirhini, name = "γράφος")
-		@dot = "digraph #{name} {\nrankdir=LR\n"
-
-	end
-
-	def to_s
-		@dot + "}"
-	end
-
-	def añada_línea(texto)
-		@dot += texto + "\n"
-	end
-end
-
-# PRV -> PRH -> PRHi -> PiRHi -> Dot
+#υπάρχει τρόπος να απλοποιήσω τις μεθόδους στους Constructores;
 
 class Furñá
 
@@ -48,7 +32,7 @@ class Furñá
 	end
 
 	def to_dot(decorador)
-		dot = ""
+		dot = "  "
 
 		dot_padres = @padres.inject("") do |acc, padre|
 			acc + "#{padre.index} "
@@ -58,171 +42,20 @@ class Furñá
 			dot_razón = "[#{decorador.decar(razón)}]"
 
 			dot_hijos = hijos.inject("") do |acc, hijo|
-				acc + "#{hijo.index}[#{decorador.decan(hijo)}]"
+				acc + "#{hijo.index}[#{decorador.decan(hijo)}] "
 			end
 
-			dot += "{ #{dot_padres} } -> { #{dot_hijos} }#{dot_razón}\n"
+			dot += "{ #{dot_padres}} -> { #{dot_hijos}} #{dot_razón}\n"
 		end
 		dot
 	end
 end
 
-class Decorador
 
-	def initialize(lambda_de_nodo, lambda_de_razón)
-		@lambda_de_nodo = lambda_de_nodo
-		@lambda_de_razón = lambda_de_razón
-	end
-
-	def decan(nodo)
-		@lambda_de_nodo.call(nodo)
-	end
-
-	def decar(razón)
-		@lambda_de_razón.call(razón)
-	end
-end
-
-class LambdasDeNodo
-	
-	def self.lleno
-		lambda { |nodo| }
-	end
-
-	def self.valor
-		lambda { |nodo| "label=#{nodo.valor}" }
-	end
-
-end
-
-class LambdasDeRazón
-	
-	def self.lleno
-		lambda { |razón| }
-	end
-	
-	def self.razón
-		lambda { |razón| "label=#{razón}" }
-	end
-
-end
-
-class Decoradores
-
-	def self.valor_razón
-		Decorador.new( 
-			LambdasDeNodo.valor,
-			LambdasDeRazón.razón
-		)
-	end
-
-	def self.valor
-		Decorador.new( 
-			LambdasDeNodo.valor,
-			LambdasDeRazón.lleno
-		)
-	end
-
-	def self.razón
-		Decorador.new( 
-			LambdasDeNodo.lleno,
-			LambdasDeRazón.razón
-		)
-	end
-
-	def self.lleno
-		Decorador.new( 
-			LambdasDeNodo.lleno,
-			LambdasDeRazón.lleno
-		)
-	end
-end
-
-class ConstructoresDeRed
-
-	def self.método1(hash_de_raíces, lambda_de_desarollo, lambda_de_terminal)
-		red = Red.new
-		nodos =[]
-		hash_de_raíces.each_pair do |razón, valor|
-			nodos = red.añada_raíces(hash_de_raíces)
-		end
-		while ! nodos.empty?
-			padre = nodos.pop
-			if ! lambda_de_terminal.call(padre)
-				nodos_nuevos = red.cree_furñá([padre], lambda_de_desarollo.call(padre))
-				nodos.concat(nodos_nuevos)
-			end
-		end
-		red
-	end
-
-	def self.ex1
-		rs = {:raíz => [10,20]}
-		lt = lambda { |n| n.valor <= 0 }
-		ld = lambda { |padre| {:m => [rand(padre.valor)]} }
-		self.método1(rs,ld,lt)
-	end
-
-	def self.ex1b(valor_de_raíz, hijos)
-		rs = {:raíz => [valor_de_raíz]}
-		lt = lambda { |n| n.valor <= 0 }
-		ld = lambda { |padre| {:m => (1+rand(hijos)).times.collect { rand(padre.valor) } } }
-		self.método1(rs,ld,lt)
-	end
-
-	def self.método2(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
-		red = Red.new
-		nodos = red.añada_raíces(hash_de_raíces)
-		while ! nodos.empty?
-			particiones = nodos.group_by { |nodo| nodo.valor }
-			nodos = []
-			particiones.each_value do |padres|
-				if ! lambda_terminal.call(padres[0])						
-					nodos_nuevos = red.cree_furñá(padres, lambda_de_desarollo.call(padres[0]))
-					nodos.concat(nodos_nuevos)
-				end
-			end
-		end
-		red
-	end
-
-	def self.ex2
-		rs = {:raíz => [10,11,12,13]}
-		lt = lambda { |nodo| nodo.valor <= 0 }
-		ld = lambda { |padre| {:m => [rand(padre.valor)]} }
-		self.método2(rs,ld,lt)
-	end
-
-	def self.método3(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
-		red = Red.new
-		nodos = red.añada_raíces(hash_de_raíces)
-		while ! nodos.empty?
-			particiones = nodos.group_by { |nodo| nodo.valor }
-			padres = particiones.max[1]
-			padres.each { |p| nodos.delete(p) }
-			if ! lambda_terminal.call(padres[0])						
-				nodos_nuevos = red.cree_furñá(padres, lambda_de_desarollo.call(padres[0]))
-				nodos.concat(nodos_nuevos)
-			end
-		end
-		red
-	end
-
-	def self.ex3
-		rs = {:raíz => (13..21).to_a}
-		lt = lambda { |nodo| nodo.valor <= 0 }
-		ld = lambda { |padre| {:m => [rand(padre.valor)]} }
-		self.método3(rs,ld,lt)
-	end
-
-end
-
-class Red
-
-	attr_reader :nodos, :furñés
+class Grafo
 
 	def initialize
-		@nodos = []
+		@vértices = []
 		@furñés = []
 	end
 
@@ -237,11 +70,11 @@ class Red
 		hash_con_razónes_y_valores_de_hijos.each do |razón, valores|
 			hijos = []
 			valores.each do |valor|
-				índice_de_nodo = @nodos.size
-				nodo = Nodo.new(padres, razón, valor, índice_de_nodo)
-				@nodos << nodo
-				hijos << nodo
-				todos_los_hijos << nodo
+				índice_de_vértice = @vértices.size
+				vértice = Vértice.new(padres, razón, valor, índice_de_vértice)
+				@vértices << vértice
+				hijos << vértice
+				todos_los_hijos << vértice
 			end
 			hash_con_razónes_y_hijos[razón] = hijos
 		end
@@ -250,8 +83,8 @@ class Red
 		todos_los_hijos
 	end
 
-	def to_dot(decorador)
-		dot = "digraph γράφος {\n" #rankdir=LR\n
+	def to_dot(decorador, nombre = "grafo")
+		dot = "digraph #{nombre} {\n" #rankdir=LR\n
 
 		dot = @furñés.inject(dot) do |acc, furñá|
 			acc + furñá.to_dot(decorador) + "\n"
@@ -278,7 +111,8 @@ class Red
 
 end
 
-class Nodo
+
+class Vértice
 
 	attr_reader :valor, :index
 
@@ -303,12 +137,165 @@ class Nodo
 		hijos.empty?
 	end
 
-	def añada_hijo(nodo)
-		@hijos << nodo
+	def añada_hijo(vértice)
+		@hijos << vértice
 	end
 
 end
 
+
+class Decorador
+
+	def initialize(lambda_de_vértice, lambda_de_razón)
+		@lambda_de_vértice = lambda_de_vértice
+		@lambda_de_razón = lambda_de_razón
+	end
+
+	def decan(vértice)
+		@lambda_de_vértice.call(vértice)
+	end
+
+	def decar(razón)
+		@lambda_de_razón.call(razón)
+	end
+end
+
+
+class LambdasDeVértice
+	
+	def self.lleno
+		lambda { |vértice| }
+	end
+
+	def self.valor
+		lambda { |vértice| "label=#{vértice.valor}" }
+	end
+
+end
+
+
+class LambdasDeRazón
+	
+	def self.lleno
+		lambda { |razón| }
+	end
+	
+	def self.razón
+		lambda { |razón| "label=#{razón}" }
+	end
+
+end
+
+
+class Decoradores
+
+	def self.valor_razón
+		Decorador.new( 
+			LambdasDeVértice.valor,
+			LambdasDeRazón.razón
+		)
+	end
+
+	def self.valor
+		Decorador.new( 
+			LambdasDeVértice.valor,
+			LambdasDeRazón.lleno
+		)
+	end
+
+	def self.razón
+		Decorador.new( 
+			LambdasDeVértice.lleno,
+			LambdasDeRazón.razón
+		)
+	end
+
+	def self.lleno
+		Decorador.new( 
+			LambdasDeVértice.lleno,
+			LambdasDeRazón.lleno
+		)
+	end
+end
+
+
+class ConstructoresDeGrafo
+
+	def self.método1(hash_de_raíces, lambda_de_desarollo, lambda_de_terminal)
+		grafo = Grafo.new
+		vértices = grafo.añada_raíces(hash_de_raíces)
+		while ! vértices.empty?
+			padre = vértices.pop
+			if ! lambda_de_terminal.call(padre)
+				vértices_nuevos = grafo.cree_furñá([padre], lambda_de_desarollo.call(padre))
+				vértices.concat(vértices_nuevos)
+			end
+		end
+		grafo
+	end
+
+	def self.ej1
+		rs = {:raíz => [10,20]}
+		lt = lambda { |n| n.valor <= 0 }
+		ld = lambda { |padre| {:m => [rand(padre.valor)]} }
+		self.método1(rs,ld,lt)
+	end
+
+	def self.ej1b(valor_de_raíz, hijos)
+		rs = {:raíz => [valor_de_raíz]}
+		lt = lambda { |n| n.valor <= 0 }
+		ld = lambda { |padre| {:m => (1+rand(hijos)).times.collect { rand(padre.valor) } } }
+		self.método1(rs,ld,lt)
+	end
+
+	def self.método2(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
+		grafo = Grafo.new
+		vértices = grafo.añada_raíces(hash_de_raíces)
+		while ! vértices.empty?
+			particiones = vértices.group_by { |vértice| vértice.valor }
+			vértices = []
+			particiones.each_value do |padres|
+				if ! lambda_terminal.call(padres[0])						
+					vértices_nuevos = grafo.cree_furñá(padres, lambda_de_desarollo.call(padres[0]))
+					vértices.concat(vértices_nuevos)
+				end
+			end
+		end
+		grafo
+	end
+
+	def self.ej2
+		rs = {:raíz => [10,11,12,13]}
+		lt = lambda { |vértice| vértice.valor <= 0 }
+		ld = lambda { |padre| {:m => [rand(padre.valor)]} }
+		self.método2(rs,ld,lt)
+	end
+
+	def self.método3(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
+		grafo = Grafo.new
+		vértices = grafo.añada_raíces(hash_de_raíces)
+		while ! vértices.empty?
+			particiones = vértices.group_by { |vértice| vértice.valor }
+			padres = particiones.max[1]
+			padres.each { |p| vértices.delete(p) }
+			if ! lambda_terminal.call(padres[0])						
+				vértices_nuevos = grafo.cree_furñá(padres, lambda_de_desarollo.call(padres[0]))
+				vértices.concat(vértices_nuevos)
+			end
+		end
+		grafo
+	end
+
+	def self.ej3
+		rs = {:raíz => (10..21).to_a}
+		lt = lambda { |vértice| vértice.valor <= 0 }
+		ld = lambda { |padre| {:m => [rand(padre.valor)]} }
+		self.método3(rs,ld,lt)
+	end
+
+end
+
+=begin
 class S
 
 	def initialize(number)
@@ -327,9 +314,5 @@ class S
 		S.new(@number-1) if ! terminal?
 	end
 
-	def spawn_
-
-
-	end
-
 end
+=end
