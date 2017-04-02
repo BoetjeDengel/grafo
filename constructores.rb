@@ -1,5 +1,4 @@
 
-require_relative 'decoradores'
 require_relative 'grafo'
 
 class ConstructoresDeGrafo
@@ -128,8 +127,8 @@ class ConstructoresDeGrafo
 		grafo
 	end
 
-	def self.ej3(step,número_de_raíces)
-		rs = {:raíz => número_de_raíces.times.collect { 100 }}
+	def self.ej3(valor_inicial, número_de_raíces, step)
+		rs = {:raíz => número_de_raíces.times.collect { valor_inicial }}
 		lt = lambda { |vértice| vértice.valor <= 0 }
 		ld = lambda { |padre| {:m => [rand(padre.valor-step...padre.valor)]} }
 		self.método3(rs,ld,lt)

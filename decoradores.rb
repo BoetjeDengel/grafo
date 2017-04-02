@@ -1,5 +1,4 @@
 
-require_relative 'constructores'
 require_relative 'grafo'
 
 class Utils
@@ -25,7 +24,7 @@ class Decorador
 		@lambda_de_razón = lambda_de_razón
 	end
 
-	def decan(vértice)
+	def decav(vértice)
 		@lambda_de_vértice.(vértice)
 	end
 
