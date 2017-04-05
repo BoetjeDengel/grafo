@@ -56,20 +56,39 @@ end
 
 class ExportadorDirecto
 
-	def initialize(grafo)
-		grafo.add_observer(self)
+	attr_reader :log
+
+	def initialize(grafo, dotador, layouts)
+		@grafo = grafo
+		@grafo.add_observer(self)
+		@dotador = dotador
+		@layouts = layouts
+		@filename = "e"
+		@log = ""
+		@índice = 0
+		@dirname = Time.now.to_i.to_s
+		Dir.mkdir("exports/#{@dirname}")
+		layouts.each do |layout|
+			Dir.mkdir("exports/#{@dirname}/#{layout}")
+		end
+	end
+
+	def índice
+		@índice += 1
 	end
 
 	def update(symbol, object)
-		puts "+"
+		@log += "+"
 		case symbol
 		when :furñá
-			puts "f"
-			#export_dot_string(acc+"}",índice,@decorador)
+			@log += "f"
+			@layouts.each do |layout|
+				@grafo.export_png("#{@dirname}/#{layout}/#{@filename}_#{índice}_#{layout}", @dotador, layout)
+			end
 		when :vértice
-			puts "v"
+			@log += "v"
 		else
-			puts "error"
+			@log += "error"
 		end
 	end
 end

@@ -2,6 +2,7 @@
 require 'observer'
 
 require_relative 'exportable'
+require_relative 'grafoUtils'
 
 class Furñá
 
@@ -21,9 +22,10 @@ end
 
 class Vértice
 
-	attr_reader :valor, :índice
+	attr_reader :grafo, :valor, :índice
 
-	def initialize(padres, razón, valor, índice)
+	def initialize(grafo, índice, padres, razón, valor)
+		@grafo = grafo
 		@padres = padres
 		padres.each do |padre|
 			padre.añada_hijo(self)
@@ -48,7 +50,7 @@ class Vértice
 		@hijos << vértice
 	end
 
-	def cuantos_hijos_tiene
+	def número_de_hijos
 		@hijos.size
 	end
 
@@ -56,7 +58,7 @@ end
 
 
 class Grafo
-	include Enumerable, Exportable, Observable
+	include Enumerable, Exportable, GrafoUtils, Observable
 
 	def initialize
 		@vértices = []
@@ -95,7 +97,7 @@ class Grafo
 			hijos = []
 			valores.each do |valor|
 				índice = @vértices.size
-				hijo = Vértice.new(padres, razón, valor, índice)
+				hijo = Vértice.new(self, índice, padres, razón, valor)
 				añada_vértice(hijo)
 				hijos << hijo
 				todos_los_hijos << hijo
@@ -112,7 +114,6 @@ class Grafo
 	end
 
 	def each_furñá(&block)
-
 		if block_given?
 			@furñés.each(&block)
 		else
@@ -121,6 +122,11 @@ class Grafo
 	end
 
 	def each_vértice
+		if block_given?
+			@vértices.each(&block)
+		else
+			@vértices.to_enum # Λάθος
+		end
 	end
 
 	private :añada_vértice, :añada_furñá

@@ -11,7 +11,7 @@ class Dotador
 	end
 
 	def grafo_to_dot(grafo, nombre = "grafo")
-		dot = preámbulo_to_dot(nombre)
+		dot = preámbulo_to_dot(grafo, nombre)
 
 		dot = grafo.each_furñá.inject(dot) do |acc, furñá|
 			acc + furñá_to_dot(furñá) + "\n"
@@ -20,8 +20,8 @@ class Dotador
 		dot + "}"
 	end
 
-	def preámbulo_to_dot(nombre = "grafo")
-		dot = "digraph #{nombre} {\n  #{@decorador.preámbulo}\n" #rankdir=LR\n
+	def preámbulo_to_dot(grafo, nombre = "grafo")
+		dot = "digraph #{nombre} {\n  #{@decorador.decop(grafo)}\n" #rankdir=LR\n
 	end
 
 	def furñá_to_dot(furñá)
@@ -43,7 +43,7 @@ class Dotador
 	end
 
 	def hijo_to_dot(hijo)
-		"#{hijo.índice}[#{@decorador.decav(hijo)}]"
+		"#{hijo.índice}[#{@decorador.decov(hijo)}]"
 	end
 
 	def hijos_to_dot(hijos)
@@ -53,7 +53,7 @@ class Dotador
 	end
 
 	def razón_to_dot(razón)
-		@decorador.decar(razón)
+		@decorador.decor(razón)
 	end
 
 end

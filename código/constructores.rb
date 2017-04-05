@@ -136,6 +136,7 @@ class ConstructoresDeGrafo
 
 	def self.método4(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
 		grafo = Grafo.new
+		grafo.live
 		vértices = grafo.añada_raíces(hash_de_raíces)
 		padres = vértices
 		vértices = []
@@ -160,6 +161,28 @@ class ConstructoresDeGrafo
 		lt = lambda { |vértice| vértice.valor <= 0 }
 		ld = lambda { |padre| {:m => [rand(padre.valor-step...padre.valor)]} }
 		self.método4(rs,ld,lt)
+	end
+
+	def self.método4congrafo(grafo, hash_de_raíces, lambda_de_desarollo, lambda_terminal)
+		vértices = grafo.añada_raíces(hash_de_raíces)
+		while vértices.count > 1
+			particiones = vértices.group_by { |vértice| vértice.valor }
+			padres = particiones.max[1]
+			padres.each { |p| vértices.delete(p) }
+			if ! lambda_terminal.(padres[0])						
+				vértices_nuevos = grafo.cree_furñá(padres, lambda_de_desarollo.(padres[0]))
+				vértices.concat(vértices_nuevos)
+			end
+		end
+		grafo
+	end
+
+	def self.ej4cg(grafo, step,número_de_raíces)
+		max = 100
+		rs = {:raíz => número_de_raíces.times.collect { rand(max-step..max) }}
+		lt = lambda { |vértice| vértice.valor <= 0 }
+		ld = lambda { |padre| {:m => [rand(padre.valor-step...padre.valor)]} }
+		self.método4congrafo(grafo, rs,ld,lt)
 	end
 
 
