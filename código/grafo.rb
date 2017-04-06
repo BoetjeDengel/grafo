@@ -2,7 +2,7 @@
 require 'observer'
 
 require_relative 'exportable'
-require_relative 'grafoUtils'
+require_relative 'grafo_utils'
 
 class Furñá
 
@@ -108,6 +108,13 @@ class Grafo
 		añada_furñá(Furñá.new(padres, hash_con_razónes_y_hijos))
 
 		todos_los_hijos
+	end
+
+	def desarrollar(métodos)
+		if ! métodos.is_a? Enumerable
+			métodos = [métodos]
+		end
+		métodos.each { |método| método.call(self) }
 	end
 
 	def each

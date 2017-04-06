@@ -1,9 +1,83 @@
 
 require_relative 'grafo'
 
-class ConstructoresDeGrafo
+module ConstructoresDeGrafo
 
-	def self.método1(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
+
+	class Ejemplo
+	
+		attr_reader :proc, :description
+
+		def initialize(proc, description)
+			@proc = proc
+#			@hash = hash
+			@description = description
+		end
+	end
+
+	class MétodoCadena
+
+		def self.proc(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
+			Proc.new do |grafo|
+				to_be_developed = grafo.añada_raíces(hash_de_raíces)
+				while ! to_be_developed.empty?
+					padres = to_be_developed
+					to_be_developed = padres.inject([]) do |acc, padre|
+						if ! lambda_terminal.(padre)			
+							vértices_nuevos = grafo.cree_furñá([padre], lambda_de_desarollo.(padre))
+							acc.concat(vértices_nuevos)
+						end
+					end			
+				end
+				grafo
+			end
+		end
+
+
+		def self.ejemplos
+			ejemplos = []
+
+			ejemplos << Ejemplo.new(
+				proc(
+					{ :raíz => [9] },
+					lambda { |padre| { :m => [padre.valor-1]} },
+					lambda { |vértice| vértice.valor <= 0 }
+				),
+				"Αλυσίδα με τιμή κατά ένα μικρότερη του πατέρα. Αρχίζει από το όρισμα και σταματάει στο 0."
+			)
+		end
+
+		#valor_de_raíz => 10,
+#			:hash_de_raíces => { :raíz => [valor_de_raíz] },
+#			:lambda_de_desarollo => lambda { |padre| { :m => [padre.valor-1]} },
+#			:lambda_terminal => lambda { |vértice| vértice.valor <= 0 }
+#			)
+#				"Αλυσίδα με τυχαία τιμή μικρότερη του πατέρα. Αρχίζει από το όρισμα και σταματάει στο 0."
+#			)
+#
+#
+#			valor_de_raíz => 10,
+#			:hash_de_raíces => { :raíz => [valor_de_raíz] },
+#			:lambda_de_desarollo => lambda { |padre| { :m => [padre.valor-1]} },
+#			:lambda_terminal => lambda { |vértice| vértice.valor <= 0 }
+#			)
+		
+		def rand_valor
+			rs = {:raíz => [10,20]}
+			lt = lambda { |n| n.valor <= 0 }
+			ld = lambda { |padre| {:m => [rand(padre.valor)]} }
+			método1(rs,ld,lt)
+		end
+
+		def ej1a(valor_de_raíz, hijos)
+			rs = {:raíz => [valor_de_raíz]}
+			lt = lambda { |n| n.valor <= 0 }
+			ld = lambda { |padre| {:m => (1+rand(hijos)).times.collect { rand(padre.valor) } } }
+			método1(rs,ld,lt)
+		end
+	end
+
+	def método1b(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
 		grafo = Grafo.new
 		to_be_developed = grafo.añada_raíces(hash_de_raíces)
 		while ! to_be_developed.empty?
@@ -19,51 +93,14 @@ class ConstructoresDeGrafo
 		grafo
 	end
 
-	def self.cadena(valor_de_raíz)
-		rs = {:raíz => [valor_de_raíz]}
-		lt = lambda { |n| n.valor <= 0 }
-		ld = lambda { |padre| {:m => [padre.valor-1]} }
-		self.método1(rs,ld,lt)
-	end
-
-	def self.ej1
-		rs = {:raíz => [10,20]}
-		lt = lambda { |n| n.valor <= 0 }
-		ld = lambda { |padre| {:m => [rand(padre.valor)]} }
-		self.método1(rs,ld,lt)
-	end
-
-	def self.ej1a(valor_de_raíz, hijos)
-		rs = {:raíz => [valor_de_raíz]}
-		lt = lambda { |n| n.valor <= 0 }
-		ld = lambda { |padre| {:m => (1+rand(hijos)).times.collect { rand(padre.valor) } } }
-		self.método1(rs,ld,lt)
-	end
-
-	def self.método1b(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
-		grafo = Grafo.new
-		to_be_developed = grafo.añada_raíces(hash_de_raíces)
-		while ! to_be_developed.empty?
-			padres = to_be_developed
-			to_be_developed = []
-			padres.each do |padre|
-				if ! lambda_terminal.(padre)			
-					vértices_nuevos = grafo.cree_furñá([padre], lambda_de_desarollo.(padre))
-					to_be_developed.concat(vértices_nuevos)
-				end
-			end			
-		end
-		grafo
-	end
-
-	def self.ej1b(valor_de_raíz)
+	def ej1b(valor_de_raíz)
 		rs = {:raíz => [valor_de_raíz]}
 		lt = lambda { |n| n.valor <= 0 }
 		ld = lambda { |padre| {:m => (1+rand(padre.valor)).times.collect { rand(padre.valor) } } }
-		self.método1b(rs,ld,lt)
+		método1b(rs,ld,lt)
 	end
 
-	def self.método_no_lt(hash_de_raíces, lambda_de_desarollo)
+	def método_no_lt(hash_de_raíces, lambda_de_desarollo)
 		grafo = Grafo.new
 		to_be_developed = grafo.añada_raíces(hash_de_raíces)
 		while ! to_be_developed.empty?
@@ -77,13 +114,13 @@ class ConstructoresDeGrafo
 		grafo
 	end
 
-	def self.ej_no_lt(valor_de_raíz)
+	def ej_no_lt(valor_de_raíz)
 		rs = {:raíz => [valor_de_raíz]}
 		ld = lambda { |padre| {:m => rand(padre.valor+1).times.collect { rand(padre.valor) } } }
-		self.método_no_lt(rs,ld)
+		método_no_lt(rs,ld)
 	end
 
-	def self.método2(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
+	def método2(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
 		grafo = Grafo.new
 		vértices = grafo.añada_raíces(hash_de_raíces)
 		while ! vértices.empty?
@@ -99,14 +136,14 @@ class ConstructoresDeGrafo
 		grafo
 	end
 
-	def self.ej2
+	def ej2
 		rs = {:raíz => [10,11,12,13]}
 		lt = lambda { |vértice| vértice.valor <= 0 }
 		ld = lambda { |padre| {:m => [rand(padre.valor)]} }
-		self.método2(rs,ld,lt)
+		método2(rs,ld,lt)
 	end
 
-	def self.método3(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
+	def método3(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
 		grafo = Grafo.new
 		vértices = grafo.añada_raíces(hash_de_raíces)
 		padres = vértices
@@ -127,14 +164,14 @@ class ConstructoresDeGrafo
 		grafo
 	end
 
-	def self.ej3(valor_inicial, número_de_raíces, step)
+	def ej3(valor_inicial, número_de_raíces, step)
 		rs = {:raíz => número_de_raíces.times.collect { valor_inicial }}
 		lt = lambda { |vértice| vértice.valor <= 0 }
 		ld = lambda { |padre| {:m => [rand(padre.valor-step...padre.valor)]} }
-		self.método3(rs,ld,lt)
+		método3(rs,ld,lt)
 	end
 
-	def self.método4(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
+	def método4(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
 		grafo = Grafo.new
 		grafo.live
 		vértices = grafo.añada_raíces(hash_de_raíces)
@@ -156,14 +193,14 @@ class ConstructoresDeGrafo
 		grafo
 	end
 
-	def self.ej4(step,número_de_raíces)
+	def ej4(step,número_de_raíces)
 		rs = {:raíz => número_de_raíces.times.collect { 100 }}
 		lt = lambda { |vértice| vértice.valor <= 0 }
 		ld = lambda { |padre| {:m => [rand(padre.valor-step...padre.valor)]} }
-		self.método4(rs,ld,lt)
+		método4(rs,ld,lt)
 	end
 
-	def self.método4congrafo(grafo, hash_de_raíces, lambda_de_desarollo, lambda_terminal)
+	def método4congrafo(grafo, hash_de_raíces, lambda_de_desarollo, lambda_terminal)
 		vértices = grafo.añada_raíces(hash_de_raíces)
 		while vértices.count > 1
 			particiones = vértices.group_by { |vértice| vértice.valor }
@@ -177,14 +214,57 @@ class ConstructoresDeGrafo
 		grafo
 	end
 
-	def self.ej4cg(grafo, step,número_de_raíces)
+	def ej4cg(grafo, step,número_de_raíces)
 		max = 100
 		rs = {:raíz => número_de_raíces.times.collect { rand(max-step..max) }}
 		lt = lambda { |vértice| vértice.valor <= 0 }
 		ld = lambda { |padre| {:m => [rand(padre.valor-step...padre.valor)]} }
-		self.método4congrafo(grafo, rs,ld,lt)
+		método4congrafo(grafo, rs,ld,lt)
 	end
 
+	def métodoSympiknosi(grafo, hash_de_raíces, lambda_de_desarollo)
+		if grafo.nil?
+			grafo = Grafo.new
+		end
+		vértices = grafo.añada_raíces(hash_de_raíces)
+		while ! vértices.nil?
+			min = vértices.min { |a, b| a.valor <=> b.valor }.valor
+			max = vértices.max { |a, b| a.valor <=> b.valor }.valor
+			groups = vértices.group_by { |vértice| vértice.valor == min || vértice.valor == max }
+			padres = groups[true]
+			vértices_nuevos = grafo.cree_furñá(padres, lambda_de_desarollo.(padres))
+			vértices = groups[false]
+			if ! vértices.nil?
+				vértices.concat(vértices_nuevos)
+			end
+		end
+		grafo
+	end
+
+	def ejSimp1(grafo, número_de_raíces, max)
+		rs = {:raíz => número_de_raíces.times.collect { rand(max) }}
+		ld = lambda { |(min, max)| { :m => [(min.valor+max.valor)/2] } }
+		métodoSympiknosi(grafo, rs,ld)
+	end
+
+	def métodoSympiknosi2(grafo, hash_de_raíces, lambda_de_desarollo)
+		if grafo.nil?
+			grafo = Grafo.new
+		end
+		vértices = grafo.añada_raíces(hash_de_raíces)
+		while vértices.count > 1
+			padres = 2.times.collect { vértices.delete_at( rand(vértices.count) ) }
+			vértices_nuevos = grafo.cree_furñá(padres, lambda_de_desarollo.(padres))
+			vértices.concat(vértices_nuevos)
+		end
+		grafo
+	end
+
+	def ejSimp2(grafo, número_de_raíces, max)
+		rs = {:raíz => número_de_raíces.times.collect { rand(max) }}
+		ld = lambda { |(min, max)| { :m => [(min.valor+max.valor)/2] } }
+		métodoSympiknosi2(grafo, rs,ld)
+	end
 
 end
 
