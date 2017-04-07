@@ -54,6 +54,13 @@ class Vértice
 		@hijos.size
 	end
 
+	def to_s
+		"#{@índice}, #{@valor}, #{@razón}, #{@hijos.count} hijos, #{@padres.count} padres"
+	end
+
+	def height
+		
+	end
 end
 
 
