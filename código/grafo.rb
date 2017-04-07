@@ -110,11 +110,12 @@ class Grafo
 		todos_los_hijos
 	end
 
-	def desarrollar(métodos)
-		if ! métodos.is_a? Enumerable
-			métodos = [métodos]
-		end
-		métodos.each { |método| método.call(self) }
+	def desarrollar(método)
+		método.call
+		#		if ! métodos.is_a? Enumerable
+#			métodos = [métodos]
+#		end
+#		métodos.each { |método| método.call(self) }
 	end
 
 	def each

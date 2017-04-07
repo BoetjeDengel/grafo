@@ -12,16 +12,15 @@ def ftiax(  args: [],
 
 			valor_de_raíz = 13
 			rs = {:raíz => [valor_de_raíz]}
-			lt = lambda { |n| n.valor <= 0 }
 			ld = lambda { |padre| {:m => [padre.valor-1]} }
-	p = ConstructoresDeGrafo::método1(rs,ld,lt)
+			lt = lambda { |n| n.valor <= 0 }
 
-	grafo.desarrollar p
+	p = ConstructoresDeGrafo::MétodoCadena.método1(rs,ld,lt)
 
 
 	#(&ConstructoresDeGrafo::método1)
-	dotador = Dotador.new(decorador)
-	grafo.export_png('spawn', dotador, layout)
+#	dotador = Dotador.new(decorador)
+#	grafo.export_png('spawn', dotador, layout)
 #	live = ExportadorDirecto.new(grafo)
 end
 

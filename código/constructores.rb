@@ -17,7 +17,7 @@ module ConstructoresDeGrafo
 
 	class MétodoCadena
 
-		def self.proc(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
+		def self.método1(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
 			Proc.new do |grafo|
 				to_be_developed = grafo.añada_raíces(hash_de_raíces)
 				while ! to_be_developed.empty?
@@ -29,16 +29,16 @@ module ConstructoresDeGrafo
 						end
 					end			
 				end
-				grafo
 			end
 		end
 
+#			{ |grafo| tbd=grafo.añada_raíces({:raíz=>[9]}); while !tbd.empty?; padres=tbd; tbd=padres.inject([]){|acc,p| if p.valor>0; vn=grafo.cree_furñá([p],{:m=>[padre.valor-1]}; acc.concat(vn) }; end; }
 
 		def self.ejemplos
 			ejemplos = []
 
 			ejemplos << Ejemplo.new(
-				proc(
+				método1(
 					{ :raíz => [9] },
 					lambda { |padre| { :m => [padre.valor-1]} },
 					lambda { |vértice| vértice.valor <= 0 }
@@ -228,8 +228,7 @@ module ConstructoresDeGrafo
 		end
 		vértices = grafo.añada_raíces(hash_de_raíces)
 		while ! vértices.nil?
-			min = vértices.min { |a, b| a.valor <=> b.valor }.valor
-			max = vértices.max { |a, b| a.valor <=> b.valor }.valor
+			min, max = vértices.minmax { |a, b| a.valor <=> b.valor }.valor
 			groups = vértices.group_by { |vértice| vértice.valor == min || vértice.valor == max }
 			padres = groups[true]
 			vértices_nuevos = grafo.cree_furñá(padres, lambda_de_desarollo.(padres))
