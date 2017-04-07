@@ -3,6 +3,98 @@ require_relative 'grafo'
 
 module ConstructoresDeGrafo
 
+	def cadena(grafo, valor_de_raíz, lambda_de_desarollo, lambda_terminal)
+		padre = grafo.añada_raíces({:raíz => [valor_de_raíz]})[0]
+		while ! lambda_terminal.(padre)			
+			padre = grafo.cree_furñá([padre], lambda_de_desarollo.(padre))[0]
+		end
+		grafo
+	end
+
+	def test_cadena
+		vr = 17
+		lt = lambda { |vértice| vértice.valor <= 0 }
+		ld = lambda { |padre| {:m => [padre.valor-1]} }
+		cadena(grafo = Grafo.new, vr, ld, lt)
+	end
+
+	def test_cadenas
+		grafo = Grafo.new
+		lt = lambda { |vértice| vértice.valor <= 0 }
+		ld = lambda { |padre| {:m => [padre.valor-1]} }
+		cadena(grafo, 12, ld, lt)
+		cadena(grafo, 7, ld, lt)
+		cadena(grafo, 29, ld, lt)
+		cadena(grafo, 16, ld, lt)
+	end
+
+	def test_cadenas_same_length
+		grafo = Grafo.new
+		lt = lambda { |vértice| vértice.valor <= 0 }
+		ld = lambda { |padre| {:m => [padre.valor-1]} }
+		cadena(grafo, 12, ld, lt)
+		ld = lambda { |padre| {:m => [padre.valor-2]} }
+		cadena(grafo, 24, ld, lt)
+		ld = lambda { |padre| {:m => [padre.valor-3]} }
+		cadena(grafo, 36, ld, lt)
+		ld = lambda { |padre| {:m => [padre.valor-4]} }
+		cadena(grafo, 48, ld, lt)
+	end	
+
+end
+=begin
+		def self.binary_value(hash_de_raíces, lambda_de_desarollo, lambda_terminal))
+			grafo = Grafo.new
+			to_be_developed = grafo.añada_raíces(hash_de_raíces)
+			while ! to_be_developed.empty?
+				padres = to_be_developed
+				to_be_developed = []
+				padres.each do |padre|
+					if ! lambda_terminal.(padre)			
+						vértices_nuevos = grafo.cree_furñá([padre], lambda_de_desarollo.(padre))
+						to_be_developed.concat(vértices_nuevos)
+					end
+				end			
+			end
+			grafo
+		end
+
+def self.binary_no_value
+			grafo = Grafo.new
+			to_be_developed = grafo.añada_raíces(hash_de_raíces)
+			while ! to_be_developed.empty?
+				padres = to_be_developed
+				to_be_developed = []
+				padres.each do |padre|
+					if ! lambda_terminal.(padre)			
+						vértices_nuevos = grafo.cree_furñá([padre], lambda_de_desarollo.(padre))
+						to_be_developed.concat(vértices_nuevos)
+					end
+				end			
+			end
+			grafo
+		end
+	
+		def ej1b(valor_de_raíz)
+			rs = {:raíz => [valor_de_raíz]}
+			lt = lambda { |n| n.valor <= 0 }
+			ld = lambda { |padre| {:m => (1+rand(padre.valor)).times.collect { rand(padre.valor) } } }
+			método1b(rs,ld,lt)
+		end
+
+		def self.binary_value
+			grafo = Grafo.new
+			tbds = grafo.añada_raíces({ :raíz => [0] })
+			tbds = Array(tbds)
+			padre = tbds.delete_at(0)
+			while ! padre.nil? && padre.height < max_height
+				vértices_nuevos = grafo.cree_furñá([padre], { :m => (1 + rand(max_children)).times.collect { 0 } } )
+				tbds.concat(vértices_nuevos)
+				padre = tbds.delete_at(0)
+			end
+			grafo
+		end
+	end
 
 	class Ejemplo
 	
@@ -102,28 +194,6 @@ module ConstructoresDeGrafo
 		end
 	end
 
-	def método1b(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
-		grafo = Grafo.new
-		to_be_developed = grafo.añada_raíces(hash_de_raíces)
-		while ! to_be_developed.empty?
-			padres = to_be_developed
-			to_be_developed = []
-			padres.each do |padre|
-				if ! lambda_terminal.(padre)			
-					vértices_nuevos = grafo.cree_furñá([padre], lambda_de_desarollo.(padre))
-					to_be_developed.concat(vértices_nuevos)
-				end
-			end			
-		end
-		grafo
-	end
-
-	def ej1b(valor_de_raíz)
-		rs = {:raíz => [valor_de_raíz]}
-		lt = lambda { |n| n.valor <= 0 }
-		ld = lambda { |padre| {:m => (1+rand(padre.valor)).times.collect { rand(padre.valor) } } }
-		método1b(rs,ld,lt)
-	end
 
 	def método_no_lt(hash_de_raíces, lambda_de_desarollo)
 		grafo = Grafo.new
