@@ -195,6 +195,24 @@ class Decoradores
 	end
 
 
+	def self.no_valor_color(color_scheme_sort = :spectral)
+	#preprocess
+		Decorador.new(
+			:preámbulo => lambda { |grafo| "node [style=filled colorscheme=#{color_scheme_sort}#{[3,grafo.max_number_of_children+1].max}]" },
+			:vértice => lambda { |vértice| "label=\"\" fillcolor=#{vértice.número_de_hijos+1}" }
+		)
+	end
+
+
+	def self.n_de_hijos_color(color_scheme_sort = :spectral)
+	#preprocess
+		Decorador.new(
+			:preámbulo => lambda { |grafo| "node [style=filled colorscheme=#{color_scheme_sort}#{[3,grafo.max_number_of_children+1].max}]" },
+			:vértice => lambda { |vértice| "label=#{vértice.número_de_hijos} fillcolor=#{vértice.número_de_hijos+1}" }
+		)
+	end
+
+
 	def self.color_y_hijos(color_scheme_sort)
 	#preprocess
 		Decorador.new(
@@ -216,6 +234,15 @@ class Decoradores
 		Decorador.new(
 			:preámbulo => lambda { |grafo| "node [style=filled]" },
 			:vértice => lambda { |vértice| "label=#{vértice.valor} fillcolor=#{ vértice.tiene_hijos ? "orangered" : "cornsilk" }" }
+		)
+	end
+
+
+	def self.no_valor_color_si_tiene_hijos
+	#preprocess
+		Decorador.new(
+			:preámbulo => lambda { |grafo| "node [style=filled]" },
+			:vértice => lambda { |vértice| "label=\"\" fillcolor=#{ vértice.tiene_hijos ? "orangered" : "cornsilk" }" }
 		)
 	end
 

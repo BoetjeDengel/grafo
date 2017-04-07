@@ -15,6 +15,31 @@ module ConstructoresDeGrafo
 		end
 	end
 
+
+	def self.métodoR(max_nodes, max_children)
+		grafo = Grafo.new
+		tbds = grafo.añada_raíces({ :raíz => [0] })
+		tbds = Array(tbds)
+		while ! tbds.empty? && grafo.size < max_nodes
+			vértices_nuevos = grafo.cree_furñá([tbds.delete_at(0)], { :m => (1 + rand(max_children)).times.collect { 0 } } )
+			tbds.concat(vértices_nuevos)
+		end
+		grafo
+	end
+
+	def self.métodoR2(max_height, max_children)
+		grafo = Grafo.new
+		tbds = grafo.añada_raíces({ :raíz => [0] })
+		tbds = Array(tbds)
+		padre = tbds.delete_at(0)
+		while ! padre.nil? && padre.height < max_height
+			vértices_nuevos = grafo.cree_furñá([padre], { :m => (1 + rand(max_children)).times.collect { 0 } } )
+			tbds.concat(vértices_nuevos)
+			padre = tbds.delete_at(0)
+		end
+		grafo
+	end
+
 	class MétodoCadena
 
 		def self.método1(hash_de_raíces, lambda_de_desarollo, lambda_terminal)

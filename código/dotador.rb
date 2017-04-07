@@ -57,3 +57,15 @@ class Dotador
 	end
 
 end
+
+class DotadorNoHijos < Dotador
+
+	def hijos_to_dot(hijos)
+		hijos.select do |hijo|
+			hijo.tiene_hijos
+		end .inject("") do |acc, hijo|
+			acc + hijo_to_dot(hijo) + " "
+		end
+	end
+
+end

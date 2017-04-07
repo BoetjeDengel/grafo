@@ -43,7 +43,7 @@ class Vértice
 	end
 
 	def tiene_hijos
-		@hijos.empty?
+		! @hijos.empty?
 	end
 
 	def añada_hijo(vértice)
@@ -60,9 +60,15 @@ end
 class Grafo
 	include Enumerable, Exportable, GrafoUtils, Observable
 
+	attr_reader :vértices, :furñés
+
 	def initialize
 		@vértices = []
 		@furñés = []
+	end
+
+	def size
+		@vértices.size
 	end
 
 	def añada_vértice(vértice)

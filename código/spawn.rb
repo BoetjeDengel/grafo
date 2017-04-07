@@ -4,6 +4,7 @@ require_relative 'decoradores'
 require_relative 'dotador'
 require_relative 'exportable'
 require_relative 'grafo'
+require_relative 'grafo_utils'
 
 def ftiax(  args: [],
 			grafo: Grafo.new,
@@ -25,14 +26,14 @@ def ftiax(  args: [],
 end
 
 
-def ftiaxe
-	grafo = Grafo.new
-	decorador = Decoradores.color_si_tiene_hijos
-	dotador = Dotador.new(decorador)
-	layouts = [:dot]
-	live = ExportadorDirecto.new(grafo, dotador, layouts)
-	ConstructoresDeGrafo.ejSimp1(grafo, 50, 1000)
-	true
+def ftiaxe(*args)
+	decorador = Decoradores.n_de_hijos_color()
+#	dotador = Dotador.new(decorador)
+	dotador = DotadorNoHijos.new(decorador)
+	layouts = [:dot, :twopi]
+	grafo = ConstructoresDeGrafo.métodoR(*args)
+	grafo.export_png('spawn', dotador, layouts)
+	grafo
 
 #	grafo.export_png('spawn', dotador, layout)
 #	
