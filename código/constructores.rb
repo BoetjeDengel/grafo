@@ -3,6 +3,44 @@ require_relative 'grafo'
 
 module ConstructoresDeGrafo
 
+	class Ejemplo
+	
+		attr_reader :method, :description
+
+		def initialize(method, description)
+			@method = method
+			@description = description
+		end
+	end
+
+###############################################################################
+
+	def ejemplos
+		ejemplos = []
+		ejemplos << Ejemplo.new(
+			:ej_cadena,
+			"Δημιουργεί μια αλυσίδα από το 17 μέχρι το 0 (με 18 κόμβους)."
+		)
+		ejemplos << Ejemplo.new(
+			:ej_cadenas,
+			"Δημιουργεί τέσσερις παράλληλες αλυσίδες από το 12, 7, 29 και 16 αντίστοιχα μέχρι το 0."
+		)
+		ejemplos << Ejemplo.new(
+			:ej_cadenas_same_length,
+			"Δημιουργεί τέσσερις παράλληλες αλυσίδες από το 12, 24, 36 και 48 αντίστοιχα μέχρι το 0 με 13 κόμβους η καθεμία."
+		)
+		ejemplos << Ejemplo.new(
+			:ej_cadena_no_valor,
+			"Δημιουργεί μια αλυσίδα δώδεκα κόμβων με τιμή 0 και αιτία :m."
+		)
+		ejemplos << Ejemplo.new(
+			:ej_cadena_no_valor_different_edge,
+			"Δημιουργεί μια αλυσίδα δώδεκα κόμβων με τιμή 0 και αιτία ίση με την απόσταση από τη ρίζα."
+		)
+	end
+
+###############################################################################
+
 	def cadena(grafo, valor_de_raíz, lambda_de_desarollo, lambda_terminal)
 		padre = grafo.añada_raíces({:raíz => [valor_de_raíz]})[0]
 		while ! lambda_terminal.(padre)			
@@ -11,14 +49,14 @@ module ConstructoresDeGrafo
 		grafo
 	end
 
-	def test_cadena
+	def ej_cadena
 		vr = 17
 		lt = lambda { |vértice| vértice.valor <= 0 }
 		ld = lambda { |padre| {:m => [padre.valor-1]} }
 		cadena(grafo = Grafo.new, vr, ld, lt)
 	end
 
-	def test_cadenas
+	def ej_cadenas
 		grafo = Grafo.new
 		lt = lambda { |vértice| vértice.valor <= 0 }
 		ld = lambda { |padre| {:m => [padre.valor-1]} }
@@ -28,7 +66,7 @@ module ConstructoresDeGrafo
 		cadena(grafo, 16, ld, lt)
 	end
 
-	def test_cadenas_same_length
+	def ej_cadenas_same_length
 		grafo = Grafo.new
 		lt = lambda { |vértice| vértice.valor <= 0 }
 		ld = lambda { |padre| {:m => [padre.valor-1]} }
@@ -40,40 +78,99 @@ module ConstructoresDeGrafo
 		ld = lambda { |padre| {:m => [padre.valor-4]} }
 		cadena(grafo, 48, ld, lt)
 	end	
+#______________________________________________________________________________
+
+	def cadena_no_valor(grafo, length)
+		same_valor = 0
+		padre_ary = []
+		(length+1).times do
+			padre_ary = grafo.cree_furñá(padre_ary, {:m => [same_valor]})
+		end
+		grafo
+	end
+
+	def ej_cadena_no_valor
+		cadena_no_valor(grafo = Grafo.new, 11)
+	end
+#______________________________________________________________________________
+
+	def cadena_no_valor_different_edge(grafo, length)
+		same_valor = 0
+		padre_ary = []
+		(0..length).each do |index|
+			padre_ary = grafo.cree_furñá(padre_ary, {index => [same_valor]})
+		end
+		grafo
+	end	
+
+	def ej_cadena_no_valor_different_edge
+		cadena_no_valor_different_edge(grafo = Grafo.new, 11)
+	end
 
 end
 =begin
-		def self.binary_value(hash_de_raíces, lambda_de_desarollo, lambda_terminal))
-			grafo = Grafo.new
-			to_be_developed = grafo.añada_raíces(hash_de_raíces)
-			while ! to_be_developed.empty?
-				padres = to_be_developed
-				to_be_developed = []
-				padres.each do |padre|
-					if ! lambda_terminal.(padre)			
-						vértices_nuevos = grafo.cree_furñá([padre], lambda_de_desarollo.(padre))
-						to_be_developed.concat(vértices_nuevos)
-					end
-				end			
-			end
-			grafo
-		end
+###############################################################################
 
-def self.binary_no_value
-			grafo = Grafo.new
-			to_be_developed = grafo.añada_raíces(hash_de_raíces)
-			while ! to_be_developed.empty?
-				padres = to_be_developed
-				to_be_developed = []
-				padres.each do |padre|
-					if ! lambda_terminal.(padre)			
-						vértices_nuevos = grafo.cree_furñá([padre], lambda_de_desarollo.(padre))
-						to_be_developed.concat(vértices_nuevos)
-					end
-				end			
-			end
-			grafo
+	def binary_value(grafo, valor_de_raíz, lambda_de_desarollo, lambda_terminal)
+		to_be_developed = grafo.añada_raíces({:raíz => [valor_de_raíz]})
+		while ! to_be_developed.empty?
+			padres = to_be_developed
+			to_be_developed = []
+			padres.each do |padre|
+				if ! lambda_terminal.(padre)			
+					vértices_nuevos = grafo.cree_furñá([padre], lambda_de_desarollo.(padre))
+					to_be_developed.concat(vértices_nuevos)
+				end
+			end			
 		end
+		grafo
+	end
+
+# Αυτή είναι μια μέθοδος που χρησιμοποιήθηκε η έννοια της γεννιάς.
+# Κάθε φορά που καλείται η συνθήκη του while έχουμε μια νέα γενιά.
+# Θα μπορούσε ίσως να είχε προγραμματιστεί πιο φλατ.
+#______________________________________________________________________________
+
+	def ej_binary_minus_one_minus_two_one_reason
+		vr = 6
+		lt = lambda { |vértice| vértice.valor <= 0 }
+		ld = lambda { |padre| {:m => [padre.valor-1, padre.valor-2] } }
+		binary_value(grafo = Grafo.new, vr, ld, lt)
+	end
+
+	ejemplos << Ejemplo.new(
+		:ej_binary_minus_one_minus_two_one_reason,
+		"Δημιουργεί δυαδικό δέντρο με ρίζα το 6 και αναδρομικά το αριστερό παιδί είναι κατά ένα μικρότερο ενώ το δεξί κατά δύο. Σταματάει στο 0. Μία αιτία."
+	)
+#______________________________________________________________________________
+
+	def ej_binary_minus_one_minus_two_two_reasons
+		vr = 6
+		lt = lambda { |vértice| vértice.valor <= 0 }
+		ld = lambda { |padre| {:l => [padre.valor-1], :r => [padre.valor-2] } }
+		binary_value(grafo = Grafo.new, vr, ld, lt)
+	end
+
+	ejemplos << Ejemplo.new(
+		:ej_binary_minus_one_minus_two_two_reasons,
+		"Δημιουργεί δυαδικό δέντρο με ρίζα το 6 και αναδρομικά το αριστερό παιδί είναι κατά ένα μικρότερο ενώ το δεξί κατά δύο. Σταματάει στο 0. Δύο αιτίες."
+	)
+#______________________________________________________________________________
+
+	def binary_value(grafo, valor_de_raíz, lambda_de_desarollo, lambda_terminal)
+		to_be_developed = grafo.añada_raíces({:raíz => [valor_de_raíz]})
+		while ! to_be_developed.empty?
+			padres = to_be_developed
+			to_be_developed = []
+			padres.each do |padre|
+				if ! lambda_terminal.(padre)			
+					vértices_nuevos = grafo.cree_furñá([padre], lambda_de_desarollo.(padre))
+					to_be_developed.concat(vértices_nuevos)
+				end
+			end			
+		end
+		grafo
+	end
 	
 		def ej1b(valor_de_raíz)
 			rs = {:raíz => [valor_de_raíz]}
@@ -96,6 +193,9 @@ def self.binary_no_value
 		end
 	end
 
+end
+
+=begin
 	class Ejemplo
 	
 		attr_reader :proc, :description
@@ -148,51 +248,6 @@ def self.binary_no_value
 				end
 			end
 		end
-
-#			{ |grafo| tbd=grafo.añada_raíces({:raíz=>[9]}); while !tbd.empty?; padres=tbd; tbd=padres.inject([]){|acc,p| if p.valor>0; vn=grafo.cree_furñá([p],{:m=>[padre.valor-1]}; acc.concat(vn) }; end; }
-
-		def self.ejemplos
-			ejemplos = []
-
-			ejemplos << Ejemplo.new(
-				método1(
-					{ :raíz => [9] },
-					lambda { |padre| { :m => [padre.valor-1]} },
-					lambda { |vértice| vértice.valor <= 0 }
-				),
-				"Αλυσίδα με τιμή κατά ένα μικρότερη του πατέρα. Αρχίζει από το όρισμα και σταματάει στο 0."
-			)
-		end
-
-		#valor_de_raíz => 10,
-#			:hash_de_raíces => { :raíz => [valor_de_raíz] },
-#			:lambda_de_desarollo => lambda { |padre| { :m => [padre.valor-1]} },
-#			:lambda_terminal => lambda { |vértice| vértice.valor <= 0 }
-#			)
-#				"Αλυσίδα με τυχαία τιμή μικρότερη του πατέρα. Αρχίζει από το όρισμα και σταματάει στο 0."
-#			)
-#
-#
-#			valor_de_raíz => 10,
-#			:hash_de_raíces => { :raíz => [valor_de_raíz] },
-#			:lambda_de_desarollo => lambda { |padre| { :m => [padre.valor-1]} },
-#			:lambda_terminal => lambda { |vértice| vértice.valor <= 0 }
-#			)
-		
-		def rand_valor
-			rs = {:raíz => [10,20]}
-			lt = lambda { |n| n.valor <= 0 }
-			ld = lambda { |padre| {:m => [rand(padre.valor)]} }
-			método1(rs,ld,lt)
-		end
-
-		def ej1a(valor_de_raíz, hijos)
-			rs = {:raíz => [valor_de_raíz]}
-			lt = lambda { |n| n.valor <= 0 }
-			ld = lambda { |padre| {:m => (1+rand(hijos)).times.collect { rand(padre.valor) } } }
-			método1(rs,ld,lt)
-		end
-	end
 
 
 	def método_no_lt(hash_de_raíces, lambda_de_desarollo)

@@ -9,12 +9,13 @@ class Tester
 	include ConstructoresDeGrafo
 
 	def ftia
-		decorador = Decoradores.valor
+		decorador = Decoradores.valor_razón
 		dotador = Dotador.new(decorador)
 	#	dotador = DotadorNoHijos.new(decorador)
 		layouts = [:dot, :twopi]
-		grafo = test_cadenas_same_length
-		grafo.export_png('test_cadenas_same_length', dotador, layouts)
-#		grafo
+
+		ejemplos.map(&:method).each_with_index do |method, index|
+			public_send(method).export_png("#{index}_#{method}", dotador, layouts)
+		end
 	end
 end
