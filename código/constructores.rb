@@ -1,7 +1,7 @@
 
 require_relative 'grafo'
 
-module ConstructoresDeGrafo
+module Constructores
 
 	class Ejemplo
 	
@@ -16,26 +16,30 @@ module ConstructoresDeGrafo
 ###############################################################################
 
 	def ejemplos
-		ejemplos = []
-		ejemplos << Ejemplo.new(
+		[] << Ejemplo.new(
 			:ej_cadena,
 			"Δημιουργεί μια αλυσίδα από το 17 μέχρι το 0 (με 18 κόμβους)."
-		)
-		ejemplos << Ejemplo.new(
+		) << Ejemplo.new(
 			:ej_cadenas,
 			"Δημιουργεί τέσσερις παράλληλες αλυσίδες από το 12, 7, 29 και 16 αντίστοιχα μέχρι το 0."
-		)
-		ejemplos << Ejemplo.new(
+		) << Ejemplo.new(
 			:ej_cadenas_same_length,
 			"Δημιουργεί τέσσερις παράλληλες αλυσίδες από το 12, 24, 36 και 48 αντίστοιχα μέχρι το 0 με 13 κόμβους η καθεμία."
-		)
-		ejemplos << Ejemplo.new(
+		) << Ejemplo.new(
 			:ej_cadena_no_valor,
 			"Δημιουργεί μια αλυσίδα δώδεκα κόμβων με τιμή 0 και αιτία :m."
-		)
-		ejemplos << Ejemplo.new(
+		) << Ejemplo.new(
 			:ej_cadena_no_valor_different_edge,
 			"Δημιουργεί μια αλυσίδα δώδεκα κόμβων με τιμή 0 και αιτία ίση με την απόσταση από τη ρίζα."
+		) << Ejemplo.new(
+			:ej_binary_minus_one_minus_two_one_reason,
+			"Δημιουργεί δυαδικό δέντρο με ρίζα το 6 και αναδρομικά το αριστερό παιδί είναι κατά ένα μικρότερο ενώ το δεξί κατά δύο. Σταματάει στο 0. Μία αιτία."
+		) << Ejemplo.new(
+			:ej_binary_minus_one_minus_two_two_reasons,
+			"Δημιουργεί δυαδικό δέντρο με ρίζα το 6 και αναδρομικά το αριστερό παιδί είναι κατά ένα μικρότερο ενώ το δεξί κατά δύο. Σταματάει στο 0. Δύο αιτίες."
+		) << Ejemplo.new(
+			:ej_closing_tree,
+			"Δημιουργεί δέντρο όπου κάθε κόμβος έχει όσα παιδιά και η τιμή του. Ρίζα είναι το 6."
 		)
 	end
 
@@ -107,58 +111,13 @@ module ConstructoresDeGrafo
 		cadena_no_valor_different_edge(grafo = Grafo.new, 11)
 	end
 
-end
-=begin
 ###############################################################################
-
-	def binary_value(grafo, valor_de_raíz, lambda_de_desarollo, lambda_terminal)
-		to_be_developed = grafo.añada_raíces({:raíz => [valor_de_raíz]})
-		while ! to_be_developed.empty?
-			padres = to_be_developed
-			to_be_developed = []
-			padres.each do |padre|
-				if ! lambda_terminal.(padre)			
-					vértices_nuevos = grafo.cree_furñá([padre], lambda_de_desarollo.(padre))
-					to_be_developed.concat(vértices_nuevos)
-				end
-			end			
-		end
-		grafo
-	end
 
 # Αυτή είναι μια μέθοδος που χρησιμοποιήθηκε η έννοια της γεννιάς.
 # Κάθε φορά που καλείται η συνθήκη του while έχουμε μια νέα γενιά.
 # Θα μπορούσε ίσως να είχε προγραμματιστεί πιο φλατ.
-#______________________________________________________________________________
-
-	def ej_binary_minus_one_minus_two_one_reason
-		vr = 6
-		lt = lambda { |vértice| vértice.valor <= 0 }
-		ld = lambda { |padre| {:m => [padre.valor-1, padre.valor-2] } }
-		binary_value(grafo = Grafo.new, vr, ld, lt)
-	end
-
-	ejemplos << Ejemplo.new(
-		:ej_binary_minus_one_minus_two_one_reason,
-		"Δημιουργεί δυαδικό δέντρο με ρίζα το 6 και αναδρομικά το αριστερό παιδί είναι κατά ένα μικρότερο ενώ το δεξί κατά δύο. Σταματάει στο 0. Μία αιτία."
-	)
-#______________________________________________________________________________
-
-	def ej_binary_minus_one_minus_two_two_reasons
-		vr = 6
-		lt = lambda { |vértice| vértice.valor <= 0 }
-		ld = lambda { |padre| {:l => [padre.valor-1], :r => [padre.valor-2] } }
-		binary_value(grafo = Grafo.new, vr, ld, lt)
-	end
-
-	ejemplos << Ejemplo.new(
-		:ej_binary_minus_one_minus_two_two_reasons,
-		"Δημιουργεί δυαδικό δέντρο με ρίζα το 6 και αναδρομικά το αριστερό παιδί είναι κατά ένα μικρότερο ενώ το δεξί κατά δύο. Σταματάει στο 0. Δύο αιτίες."
-	)
-#______________________________________________________________________________
-
-	def binary_value(grafo, valor_de_raíz, lambda_de_desarollo, lambda_terminal)
-		to_be_developed = grafo.añada_raíces({:raíz => [valor_de_raíz]})
+	def one_father(grafo, hash_de_raíces, lambda_de_desarollo, lambda_terminal)
+		to_be_developed = grafo.añada_raíces(hash_de_raíces)
 		while ! to_be_developed.empty?
 			padres = to_be_developed
 			to_be_developed = []
@@ -171,13 +130,33 @@ end
 		end
 		grafo
 	end
-	
-		def ej1b(valor_de_raíz)
-			rs = {:raíz => [valor_de_raíz]}
-			lt = lambda { |n| n.valor <= 0 }
-			ld = lambda { |padre| {:m => (1+rand(padre.valor)).times.collect { rand(padre.valor) } } }
-			método1b(rs,ld,lt)
-		end
+
+	def ej_binary_minus_one_minus_two_one_reason
+		hs = {:raíz => [6]}
+		lt = lambda { |vértice| vértice.valor <= 0 }
+		ld = lambda { |padre| {:m => [padre.valor-1, padre.valor-2] } }
+		one_father(grafo = Grafo.new, hs, ld, lt)
+	end
+
+	def ej_binary_minus_one_minus_two_two_reasons
+		hs = {:raíz => [6]}
+		lt = lambda { |vértice| vértice.valor <= 0 }
+		ld = lambda { |padre| {:l => [padre.valor-1], :r => [padre.valor-2] } }
+		one_father(grafo = Grafo.new, hs, ld, lt)
+	end
+
+	def ej_closing_tree
+		hs = {:raíz => [0]}
+		lt = lambda { |vértice| vértice.valor <= 0 }
+		ld = lambda { |padre| p = padre.valor; {:m => [p-1]*p } }
+		one_father(grafo = Grafo.new, hs, ld, lt)
+	end
+
+end
+
+=begin
+
+###############################################################################
 
 		def self.binary_value
 			grafo = Grafo.new
@@ -192,21 +171,6 @@ end
 			grafo
 		end
 	end
-
-end
-
-=begin
-	class Ejemplo
-	
-		attr_reader :proc, :description
-
-		def initialize(proc, description)
-			@proc = proc
-#			@hash = hash
-			@description = description
-		end
-	end
-
 
 	def self.métodoR(max_nodes, max_children)
 		grafo = Grafo.new

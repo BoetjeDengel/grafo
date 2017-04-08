@@ -140,6 +140,10 @@ end
 
 class Preámbulos
 
+	def self.no_border
+		"penwidth=0"
+	end
+
 	def self.lleno
 		""
 	end
@@ -164,6 +168,14 @@ class Decoradores
 		Decorador.new(
 			:vértice => LambdasDeVértice.valor,
 			:razón => LambdasDeRazón.razón
+		)
+	end
+
+	def self.valor_no_border
+		Decorador.new(
+			:preámbulo => lambda { |grafo| "node [penwidth=0 shape=circle]" },
+			:vértice => LambdasDeVértice.valor,
+			:razón => lambda { |razón| "arrowhead=none" },
 		)
 	end
 

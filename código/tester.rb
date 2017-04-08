@@ -6,15 +6,16 @@ require_relative 'grafo'
 require_relative 'grafo_utils'
 
 class Tester
-	include ConstructoresDeGrafo
+	include Constructores
 
 	def ftia
-		decorador = Decoradores.valor_razón
+		decorador = Decoradores.valor_no_border
 		dotador = Dotador.new(decorador)
 	#	dotador = DotadorNoHijos.new(decorador)
-		layouts = [:dot, :twopi]
+		layouts = [:twopi]
 
-		ejemplos.map(&:method).each_with_index do |method, index|
+
+		ejemplos.pop(1).map(&:method).each_with_index do |method, index|
 			public_send(method).export_png("#{index}_#{method}", dotador, layouts)
 		end
 	end
