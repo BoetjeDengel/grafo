@@ -9,13 +9,13 @@ class Tester
 	include Constructores
 
 	def ftia
-		decorador = Decoradores.valor_no_border
+		decorador = Decoradores.valor
+#		decorador = Decoradores.valor_no_border_no_arrowhead
 		dotador = Dotador.new(decorador)
 	#	dotador = DotadorNoHijos.new(decorador)
-		layouts = [:twopi]
+		layouts = [:dot]
 
-
-		ejemplos.pop(1).map(&:method).each_with_index do |method, index|
+		rejemplos.map(&:method).each_with_index do |method, index|
 			public_send(method).export_png("#{index}_#{method}", dotador, layouts)
 		end
 	end

@@ -42,6 +42,23 @@ module Constructores
 			"Δημιουργεί δέντρο όπου κάθε κόμβος έχει όσα παιδιά και η τιμή του. Ρίζα είναι το 6."
 		)
 	end
+#______________________________________________________________________________
+
+	def rejemplos
+		[] << Ejemplo.new(
+			:rej_closing_tree,
+			"Δημιουργεί δέντρο όπου κάθε κόμβος έχει (1+rand(valor)) παιδιά, το καθένα με rand(valor) τιμή. Ρίζα είναι το 10."
+		) << Ejemplo.new(
+			:rej_sympiknosi_minmax_group_selection,
+			"Δημιουργεί δέντρο minmax group συμπύκνωσης 25 ρίζων με τιμή rand(100)."
+		) << Ejemplo.new(
+			:rej_sympiknosi_random_2_selection,
+			"Δημιουργεί δέντρο συμπύκνωσης 25 ρίζων με τιμή rand(100) με τυχαία επιλογή δύο κόμβων."
+		) << Ejemplo.new(
+			:rej_sympiknosi_random_5_selection,
+			"Δημιουργεί δέντρο συμπύκνωσης 50 ρίζων με τιμή rand(1000) με τυχαία επιλογή πέντε κόμβων."
+		)
+	end
 
 ###############################################################################
 
@@ -57,7 +74,7 @@ module Constructores
 		vr = 17
 		lt = lambda { |vértice| vértice.valor <= 0 }
 		ld = lambda { |padre| {:m => [padre.valor-1]} }
-		cadena(grafo = Grafo.new, vr, ld, lt)
+		cadena(Grafo.new, vr, ld, lt)
 	end
 
 	def ej_cadenas
@@ -94,7 +111,7 @@ module Constructores
 	end
 
 	def ej_cadena_no_valor
-		cadena_no_valor(grafo = Grafo.new, 11)
+		cadena_no_valor(Grafo.new, 11)
 	end
 #______________________________________________________________________________
 
@@ -108,7 +125,7 @@ module Constructores
 	end	
 
 	def ej_cadena_no_valor_different_edge
-		cadena_no_valor_different_edge(grafo = Grafo.new, 11)
+		cadena_no_valor_different_edge(Grafo.new, 11)
 	end
 
 ###############################################################################
@@ -135,41 +152,92 @@ module Constructores
 		hs = {:raíz => [6]}
 		lt = lambda { |vértice| vértice.valor <= 0 }
 		ld = lambda { |padre| {:m => [padre.valor-1, padre.valor-2] } }
-		one_father(grafo = Grafo.new, hs, ld, lt)
+		one_father(Grafo.new, hs, ld, lt)
 	end
 
 	def ej_binary_minus_one_minus_two_two_reasons
 		hs = {:raíz => [6]}
 		lt = lambda { |vértice| vértice.valor <= 0 }
 		ld = lambda { |padre| {:l => [padre.valor-1], :r => [padre.valor-2] } }
-		one_father(grafo = Grafo.new, hs, ld, lt)
+		one_father(Grafo.new, hs, ld, lt)
 	end
 
 	def ej_closing_tree
-		hs = {:raíz => [0]}
+		hs = {:raíz => [5]}
 		lt = lambda { |vértice| vértice.valor <= 0 }
 		ld = lambda { |padre| p = padre.valor; {:m => [p-1]*p } }
-		one_father(grafo = Grafo.new, hs, ld, lt)
+		one_father(Grafo.new, hs, ld, lt)
+	end
+
+#______________________________________________________________________________
+
+	def rej_closing_tree
+		hs = {:raíz => [8]}
+		lt = lambda { |vértice| vértice.valor <= 0 }
+		ld = lambda { |padre| {:m => (1+rand(padre.valor)).times.collect { rand(padre.valor) } } }
+		one_father(Grafo.new, hs, ld, lt)
+	end
+
+###############################################################################
+
+	def sympiknosi_minmax_group_selection(grafo, hash_de_raíces, lambda_de_desarollo)
+		vértices = grafo.añada_raíces(hash_de_raíces)
+		while ! vértices.nil?
+			min, max = vértices.minmax { |a, b| a.valor <=> b.valor }.map(&:valor)
+			groups = vértices.group_by { |vértice| vértice.valor == min || vértice.valor == max }
+			padres = groups[true]
+			vértices_nuevos = grafo.cree_furñá(padres, lambda_de_desarollo.(padres))
+			vértices = groups[false]
+			if ! vértices.nil?
+				vértices.concat(vértices_nuevos)
+			end
+		end
+		grafo
+	end
+
+	def rej_sympiknosi_minmax_group_selection
+		número_de_raíces = 25
+		max = 100
+		rs = {:raíz => número_de_raíces.times.collect { rand(max) }}
+		ld = lambda { |selected| { :m => [selected.map(&:valor).sum / selected.count] }	}
+		sympiknosi_minmax_group_selection(Grafo.new, rs, ld)
+	end
+#______________________________________________________________________________
+
+	def sympiknosi_random_selection(grafo, number_of_selected_nodes, hash_de_raíces, lambda_de_desarollo)
+		vértices = grafo.añada_raíces(hash_de_raíces)
+		while vértices.count > 1
+			number = [ number_of_selected_nodes, vértices.count ].min
+			padres = number.times.collect { vértices.delete_at( rand(vértices.count) ) }
+			vértices_nuevos = grafo.cree_furñá(padres, lambda_de_desarollo.(padres))
+			vértices.concat(vértices_nuevos)
+		end
+		grafo
+	end
+
+	def rej_sympiknosi_random_2_selection
+		número_de_raíces = 25
+		max = 100
+		rs = {:raíz => número_de_raíces.times.collect { rand(max) }}
+		ld = lambda { |(min, max)| { :m => [(min.valor+max.valor)/2] } }
+		sympiknosi_random_selection(Grafo.new, 2, rs, ld)
+	end
+
+	def rej_sympiknosi_random_5_selection
+		número_de_raíces = 50
+		max = 1000
+		rs = {:raíz => número_de_raíces.times.collect { rand(max) }}
+		ld = lambda { |selected| { :m => [selected.map(&:valor).sum / selected.count] }	}
+		sympiknosi_random_selection(Grafo.new, 5, rs, ld)
 	end
 
 end
 
 =begin
-
 ###############################################################################
 
-		def self.binary_value
-			grafo = Grafo.new
-			tbds = grafo.añada_raíces({ :raíz => [0] })
-			tbds = Array(tbds)
-			padre = tbds.delete_at(0)
-			while ! padre.nil? && padre.height < max_height
-				vértices_nuevos = grafo.cree_furñá([padre], { :m => (1 + rand(max_children)).times.collect { 0 } } )
-				tbds.concat(vértices_nuevos)
-				padre = tbds.delete_at(0)
-			end
-			grafo
-		end
+	def height_at_most(max_height)
+		while ! padre.nil? && padre.height < max_height
 	end
 
 	def self.métodoR(max_nodes, max_children)
@@ -181,80 +249,6 @@ end
 			tbds.concat(vértices_nuevos)
 		end
 		grafo
-	end
-
-	def self.métodoR2(max_height, max_children)
-		grafo = Grafo.new
-		tbds = grafo.añada_raíces({ :raíz => [0] })
-		tbds = Array(tbds)
-		padre = tbds.delete_at(0)
-		while ! padre.nil? && padre.height < max_height
-			vértices_nuevos = grafo.cree_furñá([padre], { :m => (1 + rand(max_children)).times.collect { 0 } } )
-			tbds.concat(vértices_nuevos)
-			padre = tbds.delete_at(0)
-		end
-		grafo
-	end
-
-	class MétodoCadena
-
-		def self.método1(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
-			Proc.new do |grafo|
-				to_be_developed = grafo.añada_raíces(hash_de_raíces)
-				while ! to_be_developed.empty?
-					padres = to_be_developed
-					to_be_developed = padres.inject([]) do |acc, padre|
-						if ! lambda_terminal.(padre)			
-							vértices_nuevos = grafo.cree_furñá([padre], lambda_de_desarollo.(padre))
-							acc.concat(vértices_nuevos)
-						end
-					end			
-				end
-			end
-		end
-
-
-	def método_no_lt(hash_de_raíces, lambda_de_desarollo)
-		grafo = Grafo.new
-		to_be_developed = grafo.añada_raíces(hash_de_raíces)
-		while ! to_be_developed.empty?
-			padres = to_be_developed
-			to_be_developed = []
-			padres.each do |padre|
-				vértices_nuevos = grafo.cree_furñá([padre], lambda_de_desarollo.(padre))
-				to_be_developed.concat(vértices_nuevos)
-			end			
-		end
-		grafo
-	end
-
-	def ej_no_lt(valor_de_raíz)
-		rs = {:raíz => [valor_de_raíz]}
-		ld = lambda { |padre| {:m => rand(padre.valor+1).times.collect { rand(padre.valor) } } }
-		método_no_lt(rs,ld)
-	end
-
-	def método2(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
-		grafo = Grafo.new
-		vértices = grafo.añada_raíces(hash_de_raíces)
-		while ! vértices.empty?
-			particiones = vértices.group_by { |vértice| vértice.valor }
-			vértices = []
-			particiones.each_value do |padres|
-				if ! lambda_terminal.(padres[0])						
-					vértices_nuevos = grafo.cree_furñá(padres, lambda_de_desarollo.(padres[0]))
-					vértices.concat(vértices_nuevos)
-				end
-			end
-		end
-		grafo
-	end
-
-	def ej2
-		rs = {:raíz => [10,11,12,13]}
-		lt = lambda { |vértice| vértice.valor <= 0 }
-		ld = lambda { |padre| {:m => [rand(padre.valor)]} }
-		método2(rs,ld,lt)
 	end
 
 	def método3(hash_de_raíces, lambda_de_desarollo, lambda_terminal)
@@ -336,69 +330,4 @@ end
 		método4congrafo(grafo, rs,ld,lt)
 	end
 
-	def métodoSympiknosi(grafo, hash_de_raíces, lambda_de_desarollo)
-		if grafo.nil?
-			grafo = Grafo.new
-		end
-		vértices = grafo.añada_raíces(hash_de_raíces)
-		while ! vértices.nil?
-			min, max = vértices.minmax { |a, b| a.valor <=> b.valor }.valor
-			groups = vértices.group_by { |vértice| vértice.valor == min || vértice.valor == max }
-			padres = groups[true]
-			vértices_nuevos = grafo.cree_furñá(padres, lambda_de_desarollo.(padres))
-			vértices = groups[false]
-			if ! vértices.nil?
-				vértices.concat(vértices_nuevos)
-			end
-		end
-		grafo
-	end
-
-	def ejSimp1(grafo, número_de_raíces, max)
-		rs = {:raíz => número_de_raíces.times.collect { rand(max) }}
-		ld = lambda { |(min, max)| { :m => [(min.valor+max.valor)/2] } }
-		métodoSympiknosi(grafo, rs,ld)
-	end
-
-	def métodoSympiknosi2(grafo, hash_de_raíces, lambda_de_desarollo)
-		if grafo.nil?
-			grafo = Grafo.new
-		end
-		vértices = grafo.añada_raíces(hash_de_raíces)
-		while vértices.count > 1
-			padres = 2.times.collect { vértices.delete_at( rand(vértices.count) ) }
-			vértices_nuevos = grafo.cree_furñá(padres, lambda_de_desarollo.(padres))
-			vértices.concat(vértices_nuevos)
-		end
-		grafo
-	end
-
-	def ejSimp2(grafo, número_de_raíces, max)
-		rs = {:raíz => número_de_raíces.times.collect { rand(max) }}
-		ld = lambda { |(min, max)| { :m => [(min.valor+max.valor)/2] } }
-		métodoSympiknosi2(grafo, rs,ld)
-	end
-
-end
-
-=begin
-class S
-
-	def initialize(number)
-		@number = number
-	end
-
-	def to_s
-		@number.to_s
-	end
-
-	def terminal?
-		 @number <= 0
-	end
-
-	def spawn
-		S.new(@number-1) if ! terminal?
-	end
-
-end
 =end

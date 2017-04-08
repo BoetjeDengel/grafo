@@ -175,9 +175,17 @@ class Decoradores
 		Decorador.new(
 			:preámbulo => lambda { |grafo| "node [penwidth=0 shape=circle]" },
 			:vértice => LambdasDeVértice.valor,
-			:razón => lambda { |razón| "arrowhead=none" },
+			:razón => lambda { |razón| "arrowhead=onormal" },
 		)
 	end
+
+	def self.valor_no_border_no_arrowhead
+		Decorador.new(
+			:preámbulo => lambda { |grafo| "node [penwidth=0 shape=circle]" },
+			:vértice => LambdasDeVértice.valor,
+			:razón => lambda { |razón| "arrowhead=none" },
+		)
+	end	
 
 	def self.valor
 		Decorador.new( 
